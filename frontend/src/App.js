@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
+import { TapTapWin, VaultCrack, EscapeMaze, SpeedClick, MemoryCards, Minesweeper, UnoGame } from './GameComponents';
 
 const COIN_TYPES = {
   BASIC: { name: 'Basic', symbol: '🪙', buy: 1, sell: 1, tax: 0, interest: 0, limit: Infinity },
@@ -12,27 +13,27 @@ const SPECIAL_SYMBOLS = ['π', 'e', 'ρ', '∑', 'ψ', 'λ', 'ζ', '∞'];
 const REGULAR_NUMBERS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 
 const JACKPOT_GAMES = {
-  'π': { name: '2D Chess', type: 'chess', reward: 'Coins + Tax Relief', cost: 5 },
-  'e': { name: '2D UNO', type: 'uno', reward: 'Coins + Bonus Turn', cost: 5 },
-  'ρ': { name: 'Minesweeper', type: 'minesweeper', reward: 'Score + Rare Bonus', cost: 5 },
-  'ζ': { name: 'Card Duel', type: 'card', reward: 'Bonus Coins', cost: 5 },
-  'ψ': { name: 'Math War', type: 'math', reward: 'Boost Coins', cost: 5 },
-  '∑': { name: 'Puzzle Rush', type: 'puzzle', reward: 'Game Buff', cost: 5 },
-  'λ': { name: 'Memory Master', type: 'memory', reward: 'Super Bonus', cost: 5 },
-  '∞': { name: 'Coin Storm', type: 'bonus', reward: 'Bonus Only', cost: 5 }
+  'π': { name: '2D Chess', type: 'chess', reward: 'Coins + Tax Relief', cost: 5, component: null },
+  'e': { name: '2D UNO', type: 'uno', reward: 'Coins + Bonus Turn', cost: 5, component: UnoGame },
+  'ρ': { name: 'Minesweeper', type: 'minesweeper', reward: 'Score + Rare Bonus', cost: 5, component: Minesweeper },
+  'ζ': { name: 'Card Duel', type: 'card', reward: 'Bonus Coins', cost: 5, component: null },
+  'ψ': { name: 'Math War', type: 'math', reward: 'Boost Coins', cost: 5, component: null },
+  '∑': { name: 'Puzzle Rush', type: 'puzzle', reward: 'Game Buff', cost: 5, component: null },
+  'λ': { name: 'Memory Master', type: 'memory', reward: 'Super Bonus', cost: 5, component: null },
+  '∞': { name: 'Coin Storm', type: 'bonus', reward: 'Bonus Only', cost: 5, component: null }
 };
 
 const REGULAR_GAMES = {
-  0: { name: 'Tap Tap Win', type: 'tap', description: 'Tap screen to earn 0.1-0.5 coins' },
-  1: { name: 'Vault Crack', type: 'memory', description: 'Memorize the pattern to crack the vault' },
-  2: { name: 'Escape Maze', type: 'maze', description: 'Navigate through maze to earn coins' },
-  3: { name: 'Color Match', type: 'color', description: 'Match colors quickly' },
-  4: { name: 'Number Rush', type: 'math', description: 'Solve math problems fast' },
-  5: { name: 'Pattern Lock', type: 'pattern', description: 'Unlock the pattern' },
-  6: { name: 'Speed Click', type: 'speed', description: 'Click as fast as you can' },
-  7: { name: 'Memory Cards', type: 'cards', description: 'Match pairs of cards' },
-  8: { name: 'Reaction Test', type: 'reaction', description: 'Test your reflexes' },
-  9: { name: 'Lucky Wheel', type: 'wheel', description: 'Spin the wheel of fortune' }
+  0: { name: 'Tap Tap Win', type: 'tap', description: 'Tap screen to earn 0.1-0.5 coins', component: TapTapWin },
+  1: { name: 'Vault Crack', type: 'memory', description: 'Memorize the pattern to crack the vault', component: VaultCrack },
+  2: { name: 'Escape Maze', type: 'maze', description: 'Navigate through maze to earn coins', component: EscapeMaze },
+  3: { name: 'Color Match', type: 'color', description: 'Match colors quickly', component: null },
+  4: { name: 'Number Rush', type: 'math', description: 'Solve math problems fast', component: null },
+  5: { name: 'Pattern Lock', type: 'pattern', description: 'Unlock the pattern', component: null },
+  6: { name: 'Speed Click', type: 'speed', description: 'Click as fast as you can', component: SpeedClick },
+  7: { name: 'Memory Cards', type: 'cards', description: 'Match pairs of cards', component: MemoryCards },
+  8: { name: 'Reaction Test', type: 'reaction', description: 'Test your reflexes', component: null },
+  9: { name: 'Lucky Wheel', type: 'wheel', description: 'Spin the wheel of fortune', component: null }
 };
 
 const TUTORIAL_STEPS = [
@@ -103,12 +104,13 @@ function App() {
   
   // Current Game
   const [currentGame, setCurrentGame] = useState(null);
+  const [activeGameComponent, setActiveGameComponent] = useState(null);
   const [gameResults, setGameResults] = useState([]);
 
   // Timer Effect
   useEffect(() => {
     let interval;
-    if (gameState === 'playing' && !isPaused && timeLeft > 0) {
+    if (gameState === 'playing' && !isPaused && timeLeft > 0 && !activeGameComponent) {
       interval = setInterval(() => {
         setTimeLeft(prev => {
           if (prev <= 1) {
@@ -120,7 +122,7 @@ function App() {
       }, 1000);
     }
     return () => clearInterval(interval);
-  }, [gameState, isPaused, timeLeft]);
+  }, [gameState, isPaused, timeLeft, activeGameComponent]);
 
   // Cooldown Effect
   useEffect(() => {
@@ -190,6 +192,7 @@ function App() {
     setFortuneState('closed');
     setGameResults([]);
     setActiveTab('lucky');
+    setActiveGameComponent(null);
   };
 
   const nextTutorialStep = () => {
@@ -279,83 +282,50 @@ function App() {
   };
 
   const playGame = (gameType) => {
-    setIsPaused(true);
     setCurrentGame(gameType);
     
-    if (SPECIAL_SYMBOLS.includes(gameType)) {
-      playJackpotGame(gameType);
+    // Get the game component
+    const gameInfo = SPECIAL_SYMBOLS.includes(gameType) ? JACKPOT_GAMES[gameType] : REGULAR_GAMES[gameType];
+    
+    if (gameInfo && gameInfo.component) {
+      setActiveGameComponent(gameInfo.component);
     } else {
-      playRegularGame(gameType);
+      // Fallback to simulation for games without components
+      simulateGame(gameType);
     }
   };
 
-  const playRegularGame = (number) => {
-    const gameInfo = REGULAR_GAMES[number];
-    const won = Math.random() > 0.3; // 70% win rate
-    let reward = 0;
+  const simulateGame = (gameType) => {
+    const isJackpot = SPECIAL_SYMBOLS.includes(gameType);
+    const won = Math.random() > (isJackpot ? 0.2 : 0.3);
+    const reward = won ? (isJackpot ? Math.floor(Math.random() * 25) + 15 : Math.floor(Math.random() * 5) + 3) : 0;
+    const scoreGain = won ? (isJackpot ? Math.floor(Math.random() * 60) + 40 : Math.floor(Math.random() * 15) + 5) : 0;
     
+    setTimeout(() => {
+      handleGameEnd(won, reward, scoreGain);
+    }, 2000);
+  };
+
+  const handleGameEnd = (won, reward, scoreGain) => {
     if (won) {
-      switch(gameInfo.type) {
-        case 'tap':
-          reward = Math.random() * 0.4 + 0.1; // 0.1-0.5 coins
-          break;
-        case 'memory':
-        case 'maze':
-          reward = Math.floor(Math.random() * 5) + 3; // 3-7 coins
-          break;
-        default:
-          reward = Math.floor(Math.random() * 3) + 2; // 2-4 coins
-      }
+      setCoins(prev => ({ ...prev, basic: prev.basic + reward }));
+      setScore(prev => prev + scoreGain);
+      setTaxReduction(prev => prev + Math.floor(Math.random() * 3) + 1);
     }
     
-    const scoreGain = won ? Math.floor(Math.random() * 15) + 5 : 0;
+    const gameInfo = SPECIAL_SYMBOLS.includes(currentGame) ? JACKPOT_GAMES[currentGame] : REGULAR_GAMES[currentGame];
     
-    setTimeout(() => {
-      if (won) {
-        setCoins(prev => ({ ...prev, basic: prev.basic + Math.floor(reward) }));
-        setScore(prev => prev + scoreGain);
-        setTaxReduction(prev => prev + Math.floor(Math.random() * 2) + 1);
-      }
-      
-      setGameResults(prev => [...prev, {
-        game: gameInfo.name,
-        won,
-        reward: Math.floor(reward),
-        scoreGain,
-        type: 'regular'
-      }]);
-      
-      setCurrentGame(null);
-      setIsPaused(false);
-      setFortuneState('closed');
-    }, 3000);
-  };
-
-  const playJackpotGame = (symbol) => {
-    const gameInfo = JACKPOT_GAMES[symbol];
-    const won = Math.random() > 0.2; // 80% win rate for paid games
-    const reward = won ? Math.floor(Math.random() * 25) + 15 : 0; // 15-39 coins
-    const scoreGain = won ? Math.floor(Math.random() * 60) + 40 : 0; // 40-99 score
+    setGameResults(prev => [...prev, {
+      game: gameInfo.name,
+      won,
+      reward,
+      scoreGain,
+      type: SPECIAL_SYMBOLS.includes(currentGame) ? 'jackpot' : 'regular'
+    }]);
     
-    setTimeout(() => {
-      if (won) {
-        setCoins(prev => ({ ...prev, basic: prev.basic + reward }));
-        setScore(prev => prev + scoreGain);
-        setTaxReduction(prev => prev + Math.floor(Math.random() * 8) + 5);
-      }
-      
-      setGameResults(prev => [...prev, {
-        game: gameInfo.name,
-        won,
-        reward,
-        scoreGain,
-        type: 'jackpot'
-      }]);
-      
-      setCurrentGame(null);
-      setIsPaused(false);
-      setFortuneState('closed');
-    }, 5000);
+    setCurrentGame(null);
+    setActiveGameComponent(null);
+    setFortuneState('closed');
   };
 
   const buyCoin = (type) => {
@@ -412,6 +382,26 @@ function App() {
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
+
+  // Render active game component
+  if (activeGameComponent) {
+    const GameComponent = activeGameComponent;
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center">
+        <div className="max-w-md w-full mx-4">
+          <GameComponent onGameEnd={handleGameEnd} />
+          <div className="text-center mt-4">
+            <button 
+              onClick={() => setActiveGameComponent(null)}
+              className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
+            >
+              Quit Game
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (gameState === 'menu') {
     return (
@@ -756,7 +746,7 @@ function App() {
                             : 'bg-gray-600 text-gray-400 cursor-not-allowed'
                         }`}
                       >
-                        Play for 5 coins
+                        {JACKPOT_GAMES[pendingGame].component ? 'Play for 5 coins' : 'Play for 5 coins (Simulation)'}
                       </button>
                     </div>
                   ) : (
@@ -767,7 +757,7 @@ function App() {
                         onClick={() => buyGame(pendingGame)}
                         className="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded font-bold"
                       >
-                        Play for Free
+                        {REGULAR_GAMES[pendingGame].component ? 'Play for Free' : 'Play for Free (Simulation)'}
                       </button>
                     </div>
                   )}
@@ -781,7 +771,7 @@ function App() {
               )}
 
               {/* Current Game */}
-              {currentGame && (
+              {currentGame && !activeGameComponent && (
                 <div className="mb-6 p-4 bg-blue-800 rounded-lg text-center">
                   <p className="font-bold text-lg mb-2">🎮 Playing Game...</p>
                   <p className="text-sm">
