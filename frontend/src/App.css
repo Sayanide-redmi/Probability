@@ -2,6 +2,56 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
+/* Economic Background */
+.economic-bg {
+  position: relative;
+  overflow: hidden;
+}
+
+.economic-bg::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='4'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"),
+    linear-gradient(45deg, transparent 25%, rgba(255,255,255,0.01) 25%, rgba(255,255,255,0.01) 50%, transparent 50%);
+  background-size: 60px 60px, 40px 40px;
+  animation: float-bg 20s linear infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.economic-bg::after {
+  content: '💰 📊 💎 🏦 💳 📈 🪙 💵';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 100%;
+  font-size: 24px;
+  opacity: 0.03;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-around;
+  animation: float-icons 30s linear infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+
+@keyframes float-bg {
+  0% { transform: translateX(0) translateY(0); }
+  100% { transform: translateX(-60px) translateY(-60px); }
+}
+
+@keyframes float-icons {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
 /* Custom animations and styles */
 .animate-float {
   animation: float 3s ease-in-out infinite;
@@ -21,16 +71,34 @@
   to { box-shadow: 0 0 20px rgba(255, 255, 255, 0.6); }
 }
 
-.fortune-teller-paper {
+.fortune-paper {
   background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
   background-size: 400% 400%;
   animation: gradient 4s ease infinite;
+  position: relative;
+  overflow: hidden;
+}
+
+.fortune-paper::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+  animation: shimmer 3s linear infinite;
 }
 
 @keyframes gradient {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
+}
+
+@keyframes shimmer {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 .coin-shine {
@@ -53,66 +121,118 @@
   left: 100%;
 }
 
+/* Tutorial Overlay */
+.tutorial-overlay {
+  backdrop-filter: blur(2px);
+}
+
+.tutorial-overlay .bg-black {
+  background: radial-gradient(circle at center, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.7) 100%);
+}
+
+/* Tab System */
+.tab-content {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Game Cards */
+.game-card {
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.game-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.game-card.jackpot {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 140, 0, 0.1));
+  border-color: rgba(255, 215, 0, 0.3);
+}
+
+.game-card.regular {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(59, 130, 246, 0.1));
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+/* Cooldown Animation */
+.cooldown-timer {
+  animation: pulse-red 2s ease-in-out infinite;
+}
+
+@keyframes pulse-red {
+  0%, 100% { color: #ef4444; }
+  50% { color: #fca5a5; }
+}
+
 /* Game result animations */
 .game-result-enter {
   opacity: 0;
-  transform: scale(0.8);
+  transform: scale(0.8) rotate(-10deg);
 }
 
 .game-result-enter-active {
   opacity: 1;
-  transform: scale(1);
-  transition: opacity 300ms, transform 300ms;
+  transform: scale(1) rotate(0deg);
+  transition: all 300ms ease-out;
+}
+
+/* Fortune Teller Steps */
+.fortune-step {
+  animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+  from { 
+    opacity: 0; 
+    transform: translateY(20px) scale(0.9); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0) scale(1); 
+  }
+}
+
+/* Wealth Counter Animation */
+.wealth-counter {
+  animation: countUp 0.5s ease-out;
+}
+
+@keyframes countUp {
+  from { transform: scale(0.8); }
+  to { transform: scale(1); }
 }
 
 /* Scrollbar styling */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(0,0,0,0.1);
-  border-radius: 3px;
+  background: rgba(0,0,0,0.2);
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
   background: rgba(255,255,255,0.3);
-  border-radius: 3px;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(255,255,255,0.5);
 }
 
-/* Custom utility classes */
-.text-shadow {
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-}
-
-.backdrop-blur-sm {
-  backdrop-filter: blur(4px);
-}
-
-/* Mobile responsive improvements */
-@media (max-width: 768px) {
-  .fortune-teller-container {
-    padding: 1rem;
-  }
-  
-  .coin-grid {
-    grid-template-columns: 1fr;
-    gap: 0.5rem;
-  }
-  
-  .game-header {
-    flex-direction: column;
-    gap: 1rem;
-  }
-}
-
 /* Special effects for jackpot wins */
 .jackpot-glow {
   animation: jackpot-pulse 1s ease-in-out infinite;
+  box-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
 }
 
 @keyframes jackpot-pulse {
@@ -121,8 +241,8 @@
     transform: scale(1);
   }
   50% { 
-    box-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
-    transform: scale(1.05);
+    box-shadow: 0 0 40px rgba(255, 215, 0, 0.8);
+    transform: scale(1.02);
   }
 }
 
@@ -146,9 +266,31 @@
   100% { transform: rotateY(360deg); }
 }
 
+/* Tab active indicator */
+.tab-active {
+  position: relative;
+}
+
+.tab-active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, #fbbf24, #f59e0b);
+  animation: glow-line 2s ease-in-out infinite alternate;
+}
+
+@keyframes glow-line {
+  from { box-shadow: 0 0 5px rgba(251, 191, 36, 0.5); }
+  to { box-shadow: 0 0 15px rgba(251, 191, 36, 0.8); }
+}
+
 /* Game board styles */
 .game-board {
-  background: radial-gradient(circle at center, rgba(255,255,255,0.1) 0%, transparent 70%);
+  background: radial-gradient(circle at center, rgba(255,255,255,0.05) 0%, transparent 70%);
+  backdrop-filter: blur(1px);
 }
 
 /* Button hover effects */
@@ -197,11 +339,18 @@
 .message-success {
   background: linear-gradient(135deg, #4ade80, #22c55e);
   box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+  animation: slideInUp 0.5s ease-out;
 }
 
 .message-error {
   background: linear-gradient(135deg, #ef4444, #dc2626);
   box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
+  animation: slideInUp 0.5s ease-out;
+}
+
+@keyframes slideInUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 
 /* Card hover effects */
@@ -231,4 +380,85 @@
   0%, 20%, 60%, 100% { transform: translateY(0); }
   40% { transform: translateY(-20px); }
   80% { transform: translateY(-10px); }
+}
+
+/* Mobile responsive improvements */
+@media (max-width: 768px) {
+  .economic-bg::after {
+    font-size: 18px;
+  }
+  
+  .fortune-teller-container {
+    padding: 1rem;
+  }
+  
+  .coin-grid {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+  
+  .game-header {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .tab-content {
+    padding: 1rem;
+  }
+}
+
+/* Number reveal animation */
+.number-reveal {
+  animation: reveal 1s ease-out;
+}
+
+@keyframes reveal {
+  0% { 
+    opacity: 0; 
+    transform: scale(0) rotate(180deg); 
+  }
+  50% { 
+    opacity: 0.5; 
+    transform: scale(1.2) rotate(90deg); 
+  }
+  100% { 
+    opacity: 1; 
+    transform: scale(1) rotate(0deg); 
+  }
+}
+
+/* Banking panel enhancements */
+.banking-card {
+  transition: all 0.3s ease;
+  border-left: 4px solid transparent;
+}
+
+.banking-card:hover {
+  border-left-color: rgba(34, 197, 94, 0.5);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.banking-card.on-cooldown {
+  border-left-color: rgba(239, 68, 68, 0.5);
+  background: rgba(239, 68, 68, 0.1);
+}
+
+/* Game unlock animation */
+.game-unlock {
+  animation: unlock 0.8s ease-out;
+}
+
+@keyframes unlock {
+  0% { 
+    opacity: 0; 
+    transform: translateY(-20px) scale(0.8); 
+  }
+  50% { 
+    opacity: 0.8; 
+    transform: translateY(5px) scale(1.1); 
+  }
+  100% { 
+    opacity: 1; 
+    transform: translateY(0) scale(1); 
+  }
 }
